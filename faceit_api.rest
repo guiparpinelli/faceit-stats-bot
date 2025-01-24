@@ -1,0 +1,59 @@
+@apiKey = {{$dotenv FACEIT_API_KEY}}
+@playerId = ccb751ac-1b1a-4caa-a845-01e4eb82c379
+@gameId = cs2
+@nickname = parpi
+### hub_id Panela
+@hubId = 10241462-46f9-4f09-bf3f-11faa84439b8
+### Test match_id
+@matchId = 1-58db7f3d-1f3d-481b-8bf7-a662bb28cea7
+
+### Get player game stats
+GET https://open.faceit.com/data/v4/players?nickname={{nickname}}
+Authorization: Bearer {{apiKey}}
+Accept: application/json
+
+### Get player game stats
+GET https://open.faceit.com/data/v4/players/{{playerId}}/games/{{gameId}}/stats
+Authorization: Bearer {{apiKey}}
+Accept: application/json
+
+
+### Get player history
+GET https://open.faceit.com/data/v4/players/{{playerId}}/history
+Authorization: Bearer {{apiKey}}
+Accept: application/json
+
+
+### Get player hubs
+GET https://open.faceit.com/data/v4/players/{{playerId}}/hubs
+Authorization: Bearer {{apiKey}}
+Accept: application/json
+
+
+### Get player history for last 7 days
+GET https://open.faceit.com/data/v4/players/{{playerId}}/history?game={{gameId}}&from={{$timestamp -7 d}}&to={{$timestamp}}&limit=100
+Authorization: Bearer {{apiKey}}
+Accept: application/json
+
+
+### Get hub members
+GET https://open.faceit.com/data/v4/hubs/{{hubId}}/members
+Authorization: Bearer {{apiKey}}
+Accept: application/json
+
+
+### Get hub matches
+GET https://open.faceit.com/data/v4/hubs/{{hubId}}/matches
+Authorization: Bearer {{apiKey}}
+Accept: application/json
+
+
+### Get match
+GET https://open.faceit.com/data/v4/matches/{{matchId}}
+Authorization: Bearer {{apiKey}}
+Accept: application/json
+
+### Get match stats
+GET https://open.faceit.com/data/v4/matches/{{matchId}}/stats
+Authorization: Bearer {{apiKey}}
+Accept: application/json
