@@ -23,7 +23,7 @@ var (
 		},
 		{
 			Name:        "track",
-			Description: "Track a player by their FACEIT nickname or profile URL.",
+			Description: "Track a FACEIT player. e.g.: `/track <nickname> OR <profile URL>`",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
 					Type:        discordgo.ApplicationCommandOptionString,
@@ -35,7 +35,7 @@ var (
 		},
 		{
 			Name:        "untrack",
-			Description: "Untrack a player by their FACEIT nickname or profile URL.",
+			Description: "Untrack a FACEIT player. e.g.: `/untrack <nickname> OR <profile URL>`",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
 					Type:        discordgo.ApplicationCommandOptionString,
@@ -107,43 +107,71 @@ func handleSlashCommand(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		return
 	}
 
-	switch i.ApplicationCommandData().Name {
-	case "ping":
-		latency := s.HeartbeatLatency().Milliseconds()
+	if handler, exists := commandHandlers[i.ApplicationCommandData().Name]; exists {
+		handler(s, i)
+	}
+}
 
-		s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-			Type: discordgo.InteractionResponseChannelMessageWithSource,
-			Data: &discordgo.InteractionResponseData{
-				Content: fmt.Sprintf("Pong! %dms", latency),
-			},
-		})
-	case "help":
-		s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-			Type: discordgo.InteractionResponseChannelMessageWithSource,
-			Data: &discordgo.InteractionResponseData{
-				Content: fmt.Sprintln("Not implemented"),
-			},
-		})
-	case "track":
-		s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-			Type: discordgo.InteractionResponseChannelMessageWithSource,
-			Data: &discordgo.InteractionResponseData{
-				Content: fmt.Sprintln("Not implemented"),
-			},
-		})
-	case "untrack":
-		s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-			Type: discordgo.InteractionResponseChannelMessageWithSource,
-			Data: &discordgo.InteractionResponseData{
-				Content: fmt.Sprintln("Not implemented"),
-			},
-		})
-	case "list":
-		s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-			Type: discordgo.InteractionResponseChannelMessageWithSource,
-			Data: &discordgo.InteractionResponseData{
-				Content: fmt.Sprintln("Not implemented"),
-			},
+func handlePing(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	latency := s.HeartbeatLatency().Milliseconds()
+
+	s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseChannelMessageWithSource,
+		Data: &discordgo.InteractionResponseData{
+			Content: fmt.Sprintf("Pong! %dms", latency),
+		},
+	})
+}
+
+func handleHelp(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	embed := &discordgo.MessageEmbed{
+		Title:       "Help",
+		Description: "Here are all the available commands:",
+		Color:       0x00ff00,
+		Fields:      make([]*discordgo.MessageEmbedField, 0, len(commands)),
+	}
+
+	for _, cmd := range commands {
+		embed.Fields = append(embed.Fields, &discordgo.MessageEmbedField{
+			Name:   "/" + cmd.Name,
+			Value:  cmd.Description,
+			Inline: false,
 		})
 	}
+
+	s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseChannelMessageWithSource,
+		Data: &discordgo.InteractionResponseData{
+			Embeds: []*discordgo.MessageEmbed{embed},
+		},
+	})
+}
+
+var commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
+	"ping": handlePing,
+	"help": handleHelp,
+	"track": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+		s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			Type: discordgo.InteractionResponseChannelMessageWithSource,
+			Data: &discordgo.InteractionResponseData{
+				Content: fmt.Sprintln("Not implemented"),
+			},
+		})
+	},
+	"untrack": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+		s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			Type: discordgo.InteractionResponseChannelMessageWithSource,
+			Data: &discordgo.InteractionResponseData{
+				Content: fmt.Sprintln("Not implemented"),
+			},
+		})
+	},
+	"list": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+		s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			Type: discordgo.InteractionResponseChannelMessageWithSource,
+			Data: &discordgo.InteractionResponseData{
+				Content: fmt.Sprintln("Not implemented"),
+			},
+		})
+	},
 }
