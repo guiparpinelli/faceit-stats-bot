@@ -11,10 +11,10 @@ run:
 	@echo "Starting FACEIT Stats Bot..."
 	@if [ ! -f .env ]; then \
 		echo "Error: .env file not found!"; \
-		echo "Please create a .env file with DISCORD_TOKEN and FACEIT_API_KEY"; \
+		echo "Please create a .env file with DISCORD_TOKEN"; \
 		exit 1; \
 	fi
-	@source .env && go run main.go -t $$DISCORD_TOKEN -k $$FACEIT_API_KEY
+	@source .env && go run *.go -t $$DISCORD_TOKEN
 
 # Build the binary
 .PHONY: build
@@ -42,4 +42,4 @@ help:
 	@echo "  test       Run tests"
 	@echo "  help       Show this help information"
 	@echo ""
-	@echo "Note: You need a .env file with DISCORD_TOKEN and FACEIT_API_KEY defined"
+	@echo "Note: You need a .env file with DISCORD_TOKEN defined"
