@@ -1,35 +1,44 @@
 package main
 
 import (
-	"flag"
-	"fmt"
+	"context"
+	"database/sql"
 	"log"
-	"os"
-	"os/signal"
+
+	"github.com/guiparpinelli/faceit-stats-bot/internal/infrastructure/db/sqlite"
+	_ "github.com/mattn/go-sqlite3"
 )
 
-func main() {
-	// Parse command line flags
-	token := flag.String("t", "", "Discord Bot Token")
-	flag.Parse()
+var ddl string
 
-	// Create a new bot instance
-	bot, err := NewBot(*token)
+func run() error {
+	ctx := context.Background()
+
+	// Use a file-based SQLite database for persistence
+	db, err := sql.Open("sqlite3", "file:./app.db")
 	if err != nil {
-		log.Fatalf("Error creating bot: %v", err)
+		return err
 	}
-	defer bot.Close()
+	defer db.Close()
 
-	// Register commands and start the bot
-	if err := bot.RegisterCommands(); err != nil {
-		log.Fatalf("Error registering commands: %v", err)
+	// Create tables
+	if _, err := db.ExecContext(ctx, ddl); err != nil {
+		return err
 	}
 
-	// Wait for interrupt signal to gracefully shutdown
-	fmt.Println("Bot is now running. Press CTRL-C to exit.")
-	sc := make(chan os.Signal, 1)
-	signal.Notify(sc, os.Interrupt)
-	<-sc
+	queries := sqlite.New(db)
 
-	log.Println("Shutdown complete")
+	// Retrieve all players
+	players, err := queries.FindAllPlayers(ctx)
+	if err != nil {
+		return err
+	}
+	log.Println(players)
+	return nil
+}
+
+func main() {
+	if err := run(); err != nil {
+		log.Fatal(err)
+	}
 }
